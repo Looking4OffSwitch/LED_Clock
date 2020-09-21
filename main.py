@@ -24,7 +24,7 @@ DOWNLIGHT_LED_PIN        = 13
 DOWNLIGHT_LED_BRIGHTNESS = 255     # Set to 0 for darkest and 255 for brightest
 DOWNLIGHT_LED_CHANNEL    = 1       # 0 or 1
 
-def all_on(strip, color):
+def set_strip_color(strip, color):
     for i in range(strip.numPixels()):
         strip.setPixelColor(i, color)
     strip.show()
@@ -37,6 +37,9 @@ def main():
 
     main_strip.begin()
     downlights.begin()
+
+    downlights_color = Color(128, 128, 128)
+    set_strip_color(downlights, downlights_color)
 
     digits_color = Color(0, 0, 255)
     second_indicator_color = Color(30, 30, 30)
@@ -56,9 +59,7 @@ def main():
 
     finally:
         # Ensure all downlight LEDs are turned off
-        for i in range(downlights.numPixels()):
-            downlights.setPixelColor(i, Color(0, 0, 0))
-        downlights.show()
+        set_strip_color(downlights, Color(0, 0, 0))
 
 if __name__ == '__main__':
     main()
