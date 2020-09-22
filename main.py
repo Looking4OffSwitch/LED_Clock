@@ -51,15 +51,16 @@ def main():
     try:
         while True:
             clock.show_current_time()
-            clock.update_second_indicator()
             time.sleep(1)
 
     except KeyboardInterrupt:
         pass
 
     finally:
+        clock.stop()
         # Ensure all downlight LEDs are turned off
         set_strip_color(downlights, Color(0, 0, 0))
+
 
 if __name__ == '__main__':
     main()

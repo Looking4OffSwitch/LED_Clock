@@ -1,5 +1,6 @@
 import time
 from datetime import datetime
+import threading
 import pytz
 
 from time_digits import TimeDigits, TIME_SEGMENTS, DIGIT_TO_SEGMENTS_MAP
@@ -15,10 +16,6 @@ class LEDClock():
         self.num_segments = num_segments
         self.leds_per_segment = leds_per_segment
 
-        # blinks on and off each second
-        self.second_indicator_segment = 20
-        self.second_indicator_is_on = False
-
         self.cur_timezone = pytz.timezone(time_zone)
 
         self.hour1 = self.hour2 = self.min1 = self.min2 = None
@@ -27,9 +24,21 @@ class LEDClock():
         self._digits_color = digits_color
         self._second_indicator_color = second_indicator_color
 
-    def __del__(self):
-        # Turn off the lights
+        # blinks on and off each second
+        self.second_indicator_segment = 20
+        self.second_indicator_is_on = False
+        self.second_indicator_thread_should_run = True
+        self.second_indicator_thread = threading.Thread(target=self.update_second_indicator, daemon=True)
+        self.second_indicator_thread.start()
+
+        self.clear() # Ensure we start with all segments turned off
+
+    def stop(self):
         self.clear()
+
+        # Clean up the background thread
+        self.second_indicator_thread_should_run = False
+        self.second_indicator_thread.join()
 
     def clear(self):
         """ Set the entire strip to black (i.e. "off") """
@@ -38,12 +47,16 @@ class LEDClock():
         self.strip.show()
 
     def update_second_indicator(self):
-        if self.second_indicator_is_on:
-            self._set_segment_color(self.second_indicator_segment, self._black_color, True)
-        else:
-            self._set_segment_color(self.second_indicator_segment, self._second_indicator_color, True)
+        """ The second indicator blinks once per second. This method runs on a background thread. """
+        while self.second_indicator_thread_should_run:
+            if self.second_indicator_is_on:
+                self._set_segment_color(self.second_indicator_segment, self._black_color, True)
+            else:
+                self._set_segment_color(self.second_indicator_segment, self._second_indicator_color, True)
 
-        self.second_indicator_is_on = not self.second_indicator_is_on
+            self.second_indicator_is_on = not self.second_indicator_is_on
+
+            time.sleep(1)
 
     def show_current_time(self, digits:(int, int, int, int)=None):
         """ digits param used for testing only """
@@ -122,5 +135,5 @@ class LEDClock():
 
             if on_off_flags[idx] == 1:
                 self._set_segment_color(segment, self._digits_color, False)
-                
+
         self.strip.show()
