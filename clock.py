@@ -39,14 +39,11 @@ class LEDClock():
 
     def update_second_indicator(self):
         if self.second_indicator_is_on:
-            # Turn it off
             self._set_segment_color(self.second_indicator_segment, self._black_color, True)
-            self.second_indicator_is_on = False
         else:
-            # Turn it on
             self._set_segment_color(self.second_indicator_segment, self._second_indicator_color, True)
-            self.second_indicator_is_on = True
-        self.strip.show()
+
+        self.second_indicator_is_on = not self.second_indicator_is_on
 
     def show_current_time(self, digits:(int, int, int, int)=None):
         """ digits param used for testing only """
@@ -94,7 +91,10 @@ class LEDClock():
         return (hr1, hr2, min1, min2)
 
     def _set_segment_color(self, segment_num: int, color: Color, show = False):
-        index = self._index_for_segment(segment_num, 0)
+        if segment_num > self.num_segments:
+            raise ValueError(f"Invalid segment number: {segment_num}")
+
+        index = self._index_for_segment(segment_num)
 
         for i in range(index, index + self.leds_per_segment):
             self.strip.setPixelColor(i, color)
@@ -106,11 +106,9 @@ class LEDClock():
         for segment in TIME_SEGMENTS[time_digit]:
             self._set_segment_color(segment, self._black_color)
 
-    def _index_for_segment(self, segment_num, offset):
-#TODO error check
+    def _index_for_segment(self, segment_num):
         if segment_num > self.num_segments:
-            # print(f"segments({segment_num}) can not be greater than {TOTAL_SEGMENTS}")
-            return None
+            raise ValueError(f"Invalid segment number: {segment_num}")
 
         start_index = segment_num * self.leds_per_segment - self.leds_per_segment
         return start_index
@@ -124,4 +122,5 @@ class LEDClock():
 
             if on_off_flags[idx] == 1:
                 self._set_segment_color(segment, self._digits_color, False)
+                
         self.strip.show()
