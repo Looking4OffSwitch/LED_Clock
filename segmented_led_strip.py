@@ -23,9 +23,6 @@ class SegmentedLEDStrip():
             self.strip.setPixelColor(i, self._black_color)
         self.strip.show()
 
-    def show(self):
-        self.strip.show()
-
     def set_segment_color(self, segment_num: int, color: Color, show = False):
         """ Light up a segment with a given color. """
 
@@ -48,5 +45,24 @@ class SegmentedLEDStrip():
         return start_index
 
     def clear_digit(self, time_digit: TimeDigits):
+        """ Turn off the LEDs at the specified digit position """
+
         for segment in TIME_SEGMENTS[time_digit]:
             self.set_segment_color(segment, self._black_color)
+
+    def show_digit(self, timeDigit: TimeDigits, digit: int, color: Color):
+        """ Turn on the LEDs at the specified digit position using digit and color. """
+
+        on_off_flags = DIGIT_TO_SEGMENTS_MAP[digit]
+
+        for idx, segment in enumerate(TIME_SEGMENTS[timeDigit]):
+            if segment == 0:
+                self.set_segment_color(segment, self._black_color)
+                continue
+
+            if on_off_flags[idx] == 1:
+                self.set_segment_color(segment, color)
+            else:
+                self.set_segment_color(segment, self._black_color)
+
+        self.strip.show()
