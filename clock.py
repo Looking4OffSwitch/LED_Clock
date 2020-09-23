@@ -3,6 +3,8 @@ from datetime import datetime
 import threading
 import pytz
 
+from segmented_led_strip import SegmentedLEDStrip
+
 from time_digits import TimeDigits, TIME_SEGMENTS, DIGIT_TO_SEGMENTS_MAP
 
 from rpi_ws281x import Adafruit_NeoPixel, Color
@@ -12,9 +14,8 @@ class LEDClock():
     def __init__(self, led_strip: Adafruit_NeoPixel, num_segments: int, leds_per_segment:int,
                  digits_color: Color, second_indicator_color: Color,time_zone='America/New_York'):
 
-        self.strip = led_strip
-        self.num_segments = num_segments
-        self.leds_per_segment = leds_per_segment
+
+        self.strip = SegmentedLEDStrip(led_strip, num_segments, leds_per_segment)
 
         self.cur_timezone = pytz.timezone(time_zone)
 
@@ -31,28 +32,22 @@ class LEDClock():
         self.second_indicator_thread = threading.Thread(target=self.update_second_indicator, daemon=True)
         self.second_indicator_thread.start()
 
-        self.clear() # Ensure we start with all segments turned off
+        self.strip.clear() # Ensure we start with all segments turned off
 
     def stop(self):
-        self.clear()
+        self.strip.clear()
 
         # Clean up the background thread
         self.second_indicator_thread_should_run = False
         self.second_indicator_thread.join()
 
-    def clear(self):
-        """ Set the entire strip to black (i.e. "off") """
-        for i in range(self.strip.numPixels()):
-            self.strip.setPixelColor(i, self._black_color)
-        self.strip.show()
-
     def update_second_indicator(self):
         """ The second indicator blinks once per second. This method runs on a background thread. """
         while self.second_indicator_thread_should_run:
             if self.second_indicator_is_on:
-                self._set_segment_color(self.second_indicator_segment, self._black_color, True)
+                self.strip.set_segment_color(self.second_indicator_segment, self._black_color, True)
             else:
-                self._set_segment_color(self.second_indicator_segment, self._second_indicator_color, True)
+                self.strip.set_segment_color(self.second_indicator_segment, self._second_indicator_color, True)
 
             self.second_indicator_is_on = not self.second_indicator_is_on
 
@@ -103,28 +98,9 @@ class LEDClock():
 
         return (hr1, hr2, min1, min2)
 
-    def _set_segment_color(self, segment_num: int, color: Color, show = False):
-        if segment_num > self.num_segments:
-            raise ValueError(f"Invalid segment number: {segment_num}")
-
-        index = self._index_for_segment(segment_num)
-
-        for i in range(index, index + self.leds_per_segment):
-            self.strip.setPixelColor(i, color)
-
-        if show:
-            self.strip.show()
-
     def _clear_digit(self, time_digit: TimeDigits):
         for segment in TIME_SEGMENTS[time_digit]:
-            self._set_segment_color(segment, self._black_color)
-
-    def _index_for_segment(self, segment_num):
-        if segment_num > self.num_segments:
-            raise ValueError(f"Invalid segment number: {segment_num}")
-
-        start_index = segment_num * self.leds_per_segment - self.leds_per_segment
-        return start_index
+            self.strip.set_segment_color(segment, self._black_color)
 
     def _show_time_helper(self, timeDigit: TimeDigits, digit: int):
         on_off_flags = DIGIT_TO_SEGMENTS_MAP[digit]
@@ -134,6 +110,6 @@ class LEDClock():
                 continue
 
             if on_off_flags[idx] == 1:
-                self._set_segment_color(segment, self._digits_color, False)
+                self.strip.set_segment_color(segment, self._digits_color, False)
 
         self.strip.show()
