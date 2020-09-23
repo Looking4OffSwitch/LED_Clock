@@ -66,23 +66,23 @@ class LEDClock():
             self.hour1 = hour1
 
             if hour1 == 0:
-                self._clear_digit(TimeDigits.HOUR_ONE)
+                self.strip.clear_digit(TimeDigits.HOUR_ONE)
             else:
                 self._show_time_helper(TimeDigits.HOUR_ONE, hour1)
 
         if self.hour2 != hour2:
             self.hour2 = hour2
-            self._clear_digit(TimeDigits.HOUR_TWO)
+            self.strip.clear_digit(TimeDigits.HOUR_TWO)
             self._show_time_helper(TimeDigits.HOUR_TWO, hour2)
 
         if self.min1 != min1:
             self.min1 = min1
-            self._clear_digit(TimeDigits.MINUTE_ONE)
+            self.strip.clear_digit(TimeDigits.MINUTE_ONE)
             self._show_time_helper(TimeDigits.MINUTE_ONE, min1)
 
         if self.min2 != min2:
             self.min2 = min2
-            self._clear_digit(TimeDigits.MINUTE_TWO)
+            self.strip.clear_digit(TimeDigits.MINUTE_TWO)
             self._show_time_helper(TimeDigits.MINUTE_TWO, min2)
 
     def _get_cur_time_digits(self) -> (int, int, int, int):
@@ -97,10 +97,6 @@ class LEDClock():
         min2 = int(dt_str[4])
 
         return (hr1, hr2, min1, min2)
-
-    def _clear_digit(self, time_digit: TimeDigits):
-        for segment in TIME_SEGMENTS[time_digit]:
-            self.strip.set_segment_color(segment, self._black_color)
 
     def _show_time_helper(self, timeDigit: TimeDigits, digit: int):
         on_off_flags = DIGIT_TO_SEGMENTS_MAP[digit]

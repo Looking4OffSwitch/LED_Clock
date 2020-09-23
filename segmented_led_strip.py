@@ -1,3 +1,4 @@
+from time_digits import TimeDigits, TIME_SEGMENTS, DIGIT_TO_SEGMENTS_MAP
 from rpi_ws281x import Adafruit_NeoPixel, Color
 
 
@@ -13,17 +14,17 @@ class SegmentedLEDStrip():
         self.num_segments = num_segments
         self.leds_per_segment = leds_per_segment
 
+        self._black_color = Color(0, 0, 0)
+
     def clear(self):
         """ Set the entire strip to black (i.e. "off") """
 
-        black = Color(0, 0, 0)
-
         for i in range(self.strip.numPixels()):
-            self.strip.setPixelColor(i, black)
+            self.strip.setPixelColor(i, self._black_color)
         self.strip.show()
 
     def show(self):
-        self.strip.show()    
+        self.strip.show()
 
     def set_segment_color(self, segment_num: int, color: Color, show = False):
         """ Light up a segment with a given color. """
@@ -45,3 +46,7 @@ class SegmentedLEDStrip():
 
         start_index = segment_num * self.leds_per_segment - self.leds_per_segment
         return start_index
+
+    def clear_digit(self, time_digit: TimeDigits):
+        for segment in TIME_SEGMENTS[time_digit]:
+            self.set_segment_color(segment, self._black_color)
