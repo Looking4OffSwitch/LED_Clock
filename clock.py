@@ -5,7 +5,7 @@ import pytz
 
 from segmented_led_strip import SegmentedLEDStrip
 
-from time_digits import LEDPosition
+from led_display_setup import LEDPosition
 
 from rpi_ws281x import Adafruit_NeoPixel, Color
 

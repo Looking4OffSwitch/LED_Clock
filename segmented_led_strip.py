@@ -1,4 +1,4 @@
-from time_digits import LEDPosition, LED_SEGMENTS, CHAR_TO_SEGMENTS_MAP
+from led_display_setup import LEDPosition, LED_SEGMENTS, CHAR_TO_SEGMENTS_MAP
 from rpi_ws281x import Adafruit_NeoPixel, Color
 
 
