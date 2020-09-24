@@ -5,7 +5,7 @@ import pytz
 
 from segmented_led_strip import SegmentedLEDStrip
 
-from time_digits import TimeDigits
+from time_digits import LEDPosition
 
 from rpi_ws281x import Adafruit_NeoPixel, Color
 
@@ -65,21 +65,21 @@ class LEDClock():
         if self.hour1 != hour1:
             self.hour1 = hour1
             if hour1 == 0:
-                self.strip.clear_digit(TimeDigits.HOUR_ONE)
+                self.strip.clear_char_at(LEDPosition.POS_4)
             else:
-                self.strip.show_digit(TimeDigits.HOUR_ONE, hour1, self._digits_color)
+                self.strip.show_char_at(LEDPosition.POS_4, str(hour1), self._digits_color)
 
         if self.hour2 != hour2:
             self.hour2 = hour2
-            self.strip.show_digit(TimeDigits.HOUR_TWO, hour2, self._digits_color)
+            self.strip.show_char_at(LEDPosition.POS_3, str(hour2), self._digits_color)
 
         if self.min1 != min1:
             self.min1 = min1
-            self.strip.show_digit(TimeDigits.MINUTE_ONE, min1, self._digits_color)
+            self.strip.show_char_at(LEDPosition.POS_2, str(min1), self._digits_color)
 
         if self.min2 != min2:
             self.min2 = min2
-            self.strip.show_digit(TimeDigits.MINUTE_TWO, min2, self._digits_color)
+            self.strip.show_char_at(LEDPosition.POS_1, str(min2), self._digits_color)
 
     def _get_cur_time_digits(self) -> (int, int, int, int):
         # zero padded, 12 hr format (e.g. 10:50 or 04:32)
@@ -91,5 +91,7 @@ class LEDClock():
 
         min1 = int(dt_str[3])
         min2 = int(dt_str[4])
+
+        # return (1, 2, 3, 4)
 
         return (hr1, hr2, min1, min2)

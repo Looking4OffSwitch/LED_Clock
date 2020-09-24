@@ -1,4 +1,4 @@
-from time_digits import TimeDigits, TIME_SEGMENTS, CHAR_TO_SEGMENTS_MAP
+from time_digits import LEDPosition, LED_SEGMENTS, CHAR_TO_SEGMENTS_MAP
 from rpi_ws281x import Adafruit_NeoPixel, Color
 
 
@@ -44,18 +44,21 @@ class SegmentedLEDStrip():
         start_index = segment_num * self.leds_per_segment - self.leds_per_segment
         return start_index
 
-    def clear_digit(self, time_digit: TimeDigits):
+    def clear_char_at(self, led_position: LEDPosition):
         """ Turn off the LEDs at the specified digit position """
 
-        for segment in TIME_SEGMENTS[time_digit]:
+        for segment in LED_SEGMENTS[led_position]:
             self.set_segment_color(segment, self._black_color)
 
-    def show_digit(self, timeDigit: TimeDigits, digit: int, color: Color):
+    def show_char_at(self, led_position: LEDPosition, char: str, color: Color):
         """ Turn on the LEDs at the specified digit position using digit and color. """
 
-        on_off_flags = CHAR_TO_SEGMENTS_MAP[str(digit)]
+        if char == None or len(char) > 1:
+            raise ValueError("char must have length 0")
 
-        for idx, segment in enumerate(TIME_SEGMENTS[timeDigit]):
+        on_off_flags = CHAR_TO_SEGMENTS_MAP[char]
+
+        for idx, segment in enumerate(LED_SEGMENTS[led_position]):
             if segment == 0:
                 self.set_segment_color(segment, self._black_color)
                 continue
