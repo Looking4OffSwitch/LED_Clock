@@ -1,4 +1,4 @@
-from time_digits import TimeDigits, TIME_SEGMENTS, DIGIT_TO_SEGMENTS_MAP
+from time_digits import TimeDigits, TIME_SEGMENTS, CHAR_TO_SEGMENTS_MAP
 from rpi_ws281x import Adafruit_NeoPixel, Color
 
 
@@ -53,7 +53,7 @@ class SegmentedLEDStrip():
     def show_digit(self, timeDigit: TimeDigits, digit: int, color: Color):
         """ Turn on the LEDs at the specified digit position using digit and color. """
 
-        on_off_flags = DIGIT_TO_SEGMENTS_MAP[digit]
+        on_off_flags = CHAR_TO_SEGMENTS_MAP[str(digit)]
 
         for idx, segment in enumerate(TIME_SEGMENTS[timeDigit]):
             if segment == 0:
